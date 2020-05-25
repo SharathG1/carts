@@ -95,6 +95,8 @@ pipeline {
       }
       steps {
         container('docker') {
+          sh 'echo { \\"insecure-registries\\":[\\"172.20.230.240\\"] } >>> /etc/docker/daemon.json'
+          sh 'cat /etc/docker/daemon.json'
           sh "docker build -t ${env.TAG_DEV} ."
         }
       }

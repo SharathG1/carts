@@ -230,7 +230,7 @@ pipeline {
             env.SERVICE_IP = sh(script: 'kubectl get svc ${APP_NAME} -n dev -o \'jsonpath={..status.loadBalancer.ingress..hostname}\'', , returnStdout: true).trim()
           }
         }
-        container("curl") {
+/*        container("curl") {
           script {
             def status = dt_createUpdateSyntheticTest (
               testName : "sockshop.dev.${env.APP_NAME}",
@@ -239,7 +239,8 @@ pipeline {
               location : "${env.DT_SYNTHETIC_LOCATION_ID}"
             )
           }
-        }
+        } 
+*/
       }
     }
   

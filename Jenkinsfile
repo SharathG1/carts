@@ -217,10 +217,10 @@ pipeline {
         }
       }
     }
-/*    stage('DT create synthetic monitor') {
-#      when {
-#          expression {
-//          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
+    stage('DT create synthetic monitor') {
+     when {
+          expression {
+          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
           }
       }
       steps {
@@ -242,7 +242,7 @@ pipeline {
         }
       }
     }
-  */
+  
   stage('DT create application detection rule') {
       when {
           expression {

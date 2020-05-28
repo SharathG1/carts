@@ -227,7 +227,7 @@ pipeline {
         container("kubectl") {
           script {
             // Get IP of service
-            env.SERVICE_IP = sh(script: 'kubectl get svc ${APP_NAME} -n dev -o \'jsonpath={..status.loadBalancer.ingress..ip}\'', , returnStdout: true).trim()
+            env.SERVICE_IP = sh(script: 'kubectl get svc ${APP_NAME} -n dev -o \'jsonpath={..status.loadBalancer.ingress..hostname}\'', , returnStdout: true).trim()
           }
         }
         container("curl") {

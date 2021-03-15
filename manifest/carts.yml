@@ -1,14 +1,19 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: carts
   namespace: dev
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      service: carts
+      app: carts
   template:
     metadata:
       labels:
+        service: carts
         app: carts
         version: v1
     spec:
@@ -24,10 +29,10 @@ spec:
           value: "DT_CUSTOM_PROP_PLACEHOLDER"
         resources:
           limits:
-            cpu: 900m
+            cpu: 500m
             memory: 2048Mi
           requests:
-            cpu: 700m
+            cpu: 400m
             memory: 1024Mi
         ports:
         - containerPort: 8080
@@ -39,14 +44,14 @@ spec:
             path: /health
             port: 8080
           initialDelaySeconds: 60
-          periodSeconds: 30
+          periodSeconds: 10
           timeoutSeconds: 15
         readinessProbe:
           httpGet:
             path: /health
             port: 8080
           initialDelaySeconds: 60
-          periodSeconds: 30
+          periodSeconds: 10
           timeoutSeconds: 15
       volumes:
         - name: tmp-volume

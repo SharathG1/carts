@@ -43,7 +43,9 @@ pipeline {
 	  
 	  stage('Initialize Keptn') {
 		  steps{
+			  script{
         		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
+			  }
 		       }
     }
     stage('Maven build') {
@@ -189,10 +191,11 @@ pipeline {
    stage('Send Finished Event Back to Keptn') {
         // Send test.finished Event back
 	   steps{
+		   script{
         def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", message:"jenkins tests succeeded"
         String keptn_bridge = env.KEPTN_BRIDGE
         echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
-	   }
+		   }}
     }
 	
     stage('Mark artifact for staging namespace') {

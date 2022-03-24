@@ -40,6 +40,10 @@ pipeline {
     DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=hardening SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
   }
   stages {
+	  
+	  stage('Initialize Keptn') {
+        keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
+    }
     stage('Maven build') {
       steps {
         checkout scm
@@ -179,6 +183,13 @@ pipeline {
       }
     }
     
+	  
+   stage('Send Finished Event Back to Keptn') {
+        // Send test.finished Event back
+        def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", message:"jenkins tests succeeded"
+        String keptn_bridge = env.KEPTN_BRIDGE
+        echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
+    }
 	
     stage('Mark artifact for staging namespace') {
       when {

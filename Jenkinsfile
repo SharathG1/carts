@@ -22,11 +22,11 @@ pipeline {
   }
   
   
-  parameters([
+	parameters{
          string(defaultValue: 'stage', description: 'Stage of your Keptn project where tests are triggered in', name: 'stage', trim: false), 
          string(defaultValue: '', description: 'Keptn Context ID', name: 'shkeptncontext', trim: false), 
          string(defaultValue: '', description: 'Triggered ID', name: 'triggeredid', trim: false), 
-        ])
+	}
     
   environment {
     APP_NAME = "carts"

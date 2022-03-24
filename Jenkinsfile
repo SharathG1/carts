@@ -1,4 +1,5 @@
-@Library('dynatrace@master','keptn-library@5.0') _
+@Library('dynatrace@master') _
+@Library('keptn-library@5.0')
 def keptn = new sh.keptn.Keptn()
 
 def tagMatchRules = [

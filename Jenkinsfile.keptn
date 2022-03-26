@@ -1,41 +1,45 @@
 @Library('dynatrace@master') _
-import groovy.json.JsonSlurper
-import groovy.json.JsonSlurperClassic
+@Library('keptn-library@6.0.0')
+def keptn = new sh.keptn.Keptn()
 
 pipeline {
   agent {
     label 'kubegit'
   }
+  
+  parameters([
+         string(defaultValue: 'stage', description: 'Stage of your Keptn project where tests are triggered in', name: 'stage', trim: false), 
+         string(defaultValue: '', description: 'Keptn Context ID', name: 'shkeptncontext', trim: false), 
+         string(defaultValue: '', description: 'Triggered ID', name: 'triggeredid', trim: false), 
+        ])
+  
   environment {
     APP_NAME = "carts"
-    KEPTN_PROJECT = "sockshop-qg"
+    KEPTN_PROJECT = "sockshop"
     KEPTN_SERVICE = "carts"
-    KEPTN_STAGE = "hardening"
+    KEPTN_STAGE = "staging"
     JMETER_VUCOUNT = 1
     JMETER_LOOPCOUNT = 4000
   }
   stages {
-    stage('Update SLI/SLO') {
+  
+	stage('Initialize Keptn') {
+		  steps{
+			  script{
+        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
+			  }
+		       }
+    }
+    
+	stage('Update SLI/SLO') {
       steps{
         checkout scm
 
         script {
-          //read sli/slo files
-          def sli = readFile("keptn/${env.KEPTN_SERVICE}-sli.yml")
-          def slo = readFile("keptn/${env.KEPTN_SERVICE}-slo.yml")
-
-          //perform base64 encoding
-          String sli_encoded = sli.bytes.encodeBase64().toString()
-          String slo_encoded = slo.bytes.encodeBase64().toString()
-
-          //Update SLO in keptn
-          def keptn_body = """{"resources" : [{"resourceURI": "slo.yaml","resourceContent": "${slo_encoded}"}]}"""
-          def slo_request = httpRequest contentType: 'APPLICATION_JSON', customHeaders: [[maskValue: true, name: 'x-token', value: "${env.KEPTN_API_TOKEN}"]], httpMode: 'POST', requestBody: keptn_body, responseHandle: 'STRING', url: "${env.KEPTN_URL}/v1/project/${env.KEPTN_PROJECT}/stage/${env.KEPTN_STAGE}/service/${env.KEPTN_SERVICE}/resource", validResponseCodes: "100:404"
-
-          //Update SLI in keptn
-          keptn_body = """{"resources" : [{"resourceURI": "dynatrace/sli.yaml","resourceContent": "${sli_encoded}"}]}"""
-          def sli_request = httpRequest contentType: 'APPLICATION_JSON', customHeaders: [[maskValue: true, name: 'x-token', value: "${env.KEPTN_API_TOKEN}"]], httpMode: 'POST', requestBody: keptn_body, responseHandle: 'STRING', url: "${env.KEPTN_URL}/v1/project/${env.KEPTN_PROJECT}/stage/${env.KEPTN_STAGE}/service/${env.KEPTN_SERVICE}/resource", validResponseCodes: "100:404"
-
+          keptn.keptnAddResources('keptn/sli.yaml')
+		  keptn.keptnAddResources('keptn/slo.yaml')
+		  keptn.keptnAddResources('jmeter/${env.APP_NAME}_perfcheck.jmx','jmeter/${env.APP_NAME}_load.jmx')
+		  
         }
       }
       
@@ -82,7 +86,16 @@ pipeline {
         sleep(60)
       }
     }
-    
+	
+	stage('Mark Test Start Time') {
+        steps {
+            script {
+				keptn.markEvaluationStartTime()
+			}
+		}
+	}
+			
+    /*
     stage('Send Test Start to DT') {
         steps {
           container("curl") {
@@ -107,7 +120,7 @@ pipeline {
       }
     
     } // end stage
-
+	*/
     stage('Run Performance Test') {
       steps {
         script {
@@ -142,7 +155,7 @@ pipeline {
         sleep(60)
       }
     }
-    
+    /*
     stage('Send Test Stop to DT') {
             steps {
               container("curl") {
@@ -167,83 +180,20 @@ pipeline {
           }
         
         } // end stage
-  
+	*/
+	
     stage('Evaluate Build with Keptn') {
       steps {
         script {
-          println  "About to execute keptn evaluation"
-          //Get the start time of the test
-          
-          //Define the Keptn Json payload for the evaluation request post
-          def keptn_json = """
-          {
-            "type": "sh.keptn.event.start-evaluation",
-            "source": "Jenkins",
-            "data": {
-              
-              "start": "${env.testStartTime}Z",
-              "end": "${env.testEndTime}Z",
-              "project": "${env.KEPTN_PROJECT}",
-              "stage": "${env.KEPTN_STAGE}",
-              "service": "${env.KEPTN_SERVICE}",
-              "teststrategy": "manual"
-            }
-            }
-            """
-          println("About to evaluate the following: ");
-          println(keptn_json);
-          // "labels": {"environment": "yourenv","yourney": "youryourney"}
+          def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded"
+		  echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
-          //Post the start-evaluation event to Keptn API
-          def kept_context_request = httpRequest contentType: 'APPLICATION_JSON', customHeaders: [[maskValue: true, name: 'x-token', value: "${env.KEPTN_API_TOKEN}"]], httpMode: 'POST', requestBody: keptn_json, responseHandle: 'STRING', url: "${env.KEPTN_URL}/v1/event", validResponseCodes: "100:404"
-          
-          //Parse response String 
-          con_response = new JsonSlurperClassic().parseText( kept_context_request.getContent() )
-          
-          // Get the keptnContext Key
-          keptn_context_key = con_response.keptnContext;
-          env.keptn_context = keptn_context_key;
-
-          // URL Encode the context key
-          encoded_context = URLEncoder.encode(keptn_context_key.toString().trim(), "UTF-8")
-          
-          //Create variable for The keptn Status Request
-          def kept_status_request
-          
-          //Query the Keptn API every 20 Seconds to ge the evaluation Done Event.
-          timeout(time: 3, unit: 'MINUTES') {
-              script {
-                  waitUntil {
-                      
-                      // Post the Keptn Context to the Keptn api to get the Evaluation-done event
-                      kept_status_request = httpRequest acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', customHeaders: [[maskValue: true, name: 'x-token', value: "${env.KEPTN_API_TOKEN}"]], httpMode: 'GET', responseHandle: 'STRING', url: "${env.KEPTN_URL}/v1/event?keptnContext=${encoded_context}&type=sh.keptn.events.evaluation-done", validResponseCodes: "100:500"
-                      //The API returns a response code 500 error if the evalution done event does not exisit
-                      if (kept_status_request.getStatus() == 500 || kept_status_request.getContent().toString().contains("No Keptn sh.keptn.events.evaluation-done event found for context") ) {
-                          sleep 10
-                          return false
-                      } else {
-                          return true
-                      } 
-                  }
-              }
-          }
-          println(kept_status_request.getContent())
-          //Parse response String
-          @NonCPS
-          responseData = new JsonSlurper().parseText( kept_status_request.getContent() )
-          
-          keptn_result = responseData.data.result
-          resultText = generateResult(responseData.data);
-          
-          env.evaluationDetails = resultText;
-          env.evaluationResult = keptn_result;
-          env.evaluationScore = responseData.data.evaluationdetails.score;
-          env.keptn_evaluationContext = responseData.id;
-          println(resultText);
         }
       }
     }
-        stage('Send Evaluation Result to DT') {
+        
+		
+		/*stage('Send Evaluation Result to DT') {
             steps {
               container("curl") {
                 script {
@@ -285,8 +235,13 @@ pipeline {
                 }
             }
         }// end stage
+		*/
+		
+		
     }// end stages
 } // end pipeline
+
+/*
 def get_timestamp(){
     DATE_TAG = java.time.LocalDate.now()
     DATETIME_TAG = java.time.LocalDateTime.now()
@@ -311,3 +266,5 @@ def generateResult(data) {
 
     return result;
 }
+
+*/

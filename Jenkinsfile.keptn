@@ -34,9 +34,9 @@ pipeline {
 	stage('Update SLI/SLO') {
       steps{
         script {
-          keptn.keptnAddResources('keptn/carts-sli.yaml')
-	  keptn.keptnAddResources('keptn/carts-slo.yaml')
-	//  keptn.keptnAddResources('jmeter/${env.APP_NAME}_perfcheck.jmx','jmeter/${env.APP_NAME}_load.jmx')
+          keptn.keptnAddResources('keptn/carts-sli.yaml','dynatrace/sli.yaml')
+	  keptn.keptnAddResources('keptn/carts-slo.yaml','slo.yaml')
+	  keptn.keptnAddResources('jmeter/${env.APP_NAME}_load.jmx','jmeter/load.jmx)
 		  
         }
       }

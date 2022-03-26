@@ -20,7 +20,7 @@ pipeline {
     KEPTN_SERVICE = "carts"
     KEPTN_STAGE = "staging"
     JMETER_VUCOUNT = 1
-    JMETER_LOOPCOUNT = 4000
+    JMETER_LOOPCOUNT = 500
   }
   stages {
   

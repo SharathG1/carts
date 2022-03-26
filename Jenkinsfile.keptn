@@ -27,7 +27,7 @@ pipeline {
 	stage('Initialize Keptn') {
 		  steps{
 			  script{
-        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
+        		keptn.keptnInit project:"${env.KEPTN_PROJECT", service:"${env.KEPTN_SERVICE", stage:"${params.stage}"
 			  }
 		       }
     }
@@ -53,7 +53,7 @@ pipeline {
           script {
             def status = waitForDeployment (
               deploymentName: "${env.APP_NAME}",
-              environment: 'staging'
+              environment: "${params.stage}"
             )
             if(status !=0 ){
               currentBuild.result = 'FAILED'
@@ -82,8 +82,7 @@ pipeline {
           }
         }
         
-        echo "Waiting for a minute to not skew data in DT"
-        sleep(60)
+
       }
     }
 	
@@ -95,37 +94,9 @@ pipeline {
 		}
 	}
 			
-    /*
-    stage('Send Test Start to DT') {
-        steps {
-          container("curl") {
-            script {
-        
-                def tagMatchRules = [[ meTypes: [[meType: 'SERVICE']],
-                                          tags : [[context: 'CONTEXTLESS', key: 'keptn_project', value: KEPTN_PROJECT],
-                                                  [context: 'CONTEXTLESS', key: 'keptn_service', value: KEPTN_SERVICE],
-                                                  [context: 'CONTEXTLESS', key: 'keptn_stage', value: KEPTN_STAGE]]
-                                    ]];
-                // Push some Jenkins OOTB info to DT.
-                def customProps = [ 
-                    "Test Type": "Load",
-                    "Test Provider": "Jmeter",
-                    "Test Parameters": "[vuCount: ${env.JMETER_VUCOUNT}] [loopCount: ${env.JMETER_LOOPCOUNT}]"
-                ];
-                
-                def notification = new pushDynatraceInfoEvent();
-                notification.call(title: "Test Start on ${env.KEPTN_PROJECT}/${env.KEPTN_SERVICE}", source: 'Jenkins', description: 'Starting load test.', tagRule: tagMatchRules, customProperties: customProps);
-            }
-          }
-      }
-    
-    } // end stage
-	*/
     stage('Run Performance Test') {
       steps {
-        script {
-            env.testStartTime = get_timestamp()
-        }
+
         container('jmeter') {
           script {
               
@@ -147,41 +118,9 @@ pipeline {
               }
             }
         }
-        script {
-            env.testEndTime = get_timestamp()
-        }
-
-        echo "Waiting for a minute so data can be processed in Dynatrace"
-        sleep(60)
       }
     }
-    /*
-    stage('Send Test Stop to DT') {
-            steps {
-              container("curl") {
-                script {
-            
-                    def tagMatchRules = [[ meTypes: [[meType: 'SERVICE']],
-                                             tags : [[context: 'CONTEXTLESS', key: 'keptn_project', value: KEPTN_PROJECT],
-                                                      [context: 'CONTEXTLESS', key: 'keptn_service', value: KEPTN_SERVICE],
-                                                      [context: 'CONTEXTLESS', key: 'keptn_stage', value: KEPTN_STAGE]]
-                                        ]];
-                    // Push some Jenkins OOTB info to DT.
-                    def customProps = [ 
-                        "Test Type": "Load",
-                        "Test Provider": "Jmeter",
-                        "Test Parameters": "[vuCount: ${env.JMETER_VUCOUNT}] [loopCount: ${env.JMETER_LOOPCOUNT}]"
-                    ];
-                    
-                    def notification = new pushDynatraceInfoEvent();
-                    notification.call(title: "Test Stop on ${env.KEPTN_PROJECT}/${env.KEPTN_SERVICE}", source: 'Jenkins', description: 'Starting load test.', tagRule: tagMatchRules, customProperties: customProps);
-                }
-             }
-          }
-        
-        } // end stage
-	*/
-	
+
     stage('Evaluate Build with Keptn') {
       steps {
         script {
@@ -193,78 +132,5 @@ pipeline {
     }
         
 		
-		/*stage('Send Evaluation Result to DT') {
-            steps {
-              container("curl") {
-                script {
-            
-                    def tagMatchRules = [[ meTypes: [[meType: 'SERVICE']],
-                                             tags : [[context: 'CONTEXTLESS', key: 'keptn_project', value: KEPTN_PROJECT],
-                                                      [context: 'CONTEXTLESS', key: 'keptn_service', value: KEPTN_SERVICE],
-                                                      [context: 'CONTEXTLESS', key: 'keptn_stage', value: KEPTN_STAGE]]
-                                        ]];
-                    // Push some Jenkins OOTB info to DT.
-                    env.bridge_evalUrl = "${env.KEPTN_BRIDGE}/project/${env.KEPTN_PROJECT}/${env.KEPTN_SERVICE}/${env.keptn_context}/${env.keptn_evaluationContext}"
-                    def customProps = [ 
-                        "Evaluation Result": "${env.evaluationResult}", 
-                        "Evaluation Score": "${env.evaluationScore}", 
-                        "Jenkins Build Tag": "${BUILD_TAG}", 
-                        "Jenkins Build URL": "${BUILD_URL}",
-                        "Evaluation Details": "${env.bridge_evalUrl}"
-                    ];
-                    
-                    def notification = new pushDynatraceInfoEvent();
-                    notification.call(title: "Keptn Quality Gates Evaluation: ${env.evaluationResult}", source: 'Jenkins', description: 'Evaluated build score for this build.', tagRule: tagMatchRules, customProperties: customProps);
-                }
-             }
-          }
-        
-        } // end stage
-        stage('Pipeline Quality Gate') {
-            steps {
-          
-                script {
-                    //if The Keptn result is "Fail", fail the build.
-                    echo env.evaluationResult
-                    if (env.evaluationResult == "fail") {
-                        echo "[pipeline] FAILING PIPELINE Because Keptn Failed the Build";
-                        echo "Check the Keptn Bridge for more details: ${env.bridge_evalUrl}"
-                        //currentBuild.currentResult = 'FAILURE';
-                        error('Failing pipeline because keptn failed the build...');
-                    }
-                }
-            }
-        }// end stage
-		*/
-		
-		
     }// end stages
 } // end pipeline
-
-/*
-def get_timestamp(){
-    DATE_TAG = java.time.LocalDate.now()
-    DATETIME_TAG = java.time.LocalDateTime.now()
-    echo "${DATETIME_TAG}"
-                
-    return DATETIME_TAG
-}
-
-def generateResult(data) {
-    def result = "Build result: " + data.result + "\n";
-    result += "Build score: " + data.evaluationdetails.score + "\n";
-    result += "Metrics overview: \n"
-    for(def indicator: data.evaluationdetails.indicatorResults) {
-        result += indicator.value.metric + ": \n"
-        result += "  target: \n"
-        for(def target: indicator.targets) {
-            result += "    - " + target.criteria + "\n"
-        }
-        result += "  value: " + indicator.value.value + "\n"
-        result += "  score: " + indicator.score + "\n"
-    }
-
-    return result;
-}
-
-*/

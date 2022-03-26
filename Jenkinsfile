@@ -37,7 +37,7 @@ pipeline {
     TAG_STAGING = "${env.TAG}-${env.VERSION}"
     CLASS = "GOLD"
     REMEDIATION = "Ansible"
-    DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=dev SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
+	  DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=${env.stage} SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
   }
   stages {
 	  

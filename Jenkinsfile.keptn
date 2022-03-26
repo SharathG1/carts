@@ -34,6 +34,7 @@ pipeline {
     
 	stage('Update SLI/SLO') {
       steps{
+      	checkout scm
         script {
           keptn.keptnAddResources('keptn/carts-sli.yaml','dynatrace/sli.yaml')
 	  keptn.keptnAddResources('keptn/carts-slo.yaml','slo.yaml')

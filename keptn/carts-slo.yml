@@ -17,16 +17,16 @@ objectives:
       - criteria:
           - "<=800"
     weight: 1
-  - sli: "rt_addToCart" # looking at a particular transaction
-    weight: 3           # business critical transaction
-    pass:
-      - criteria:
-          - "<=+10%"    # Degradation-driven
-          - "<300000"   # NFR-driven
-    warning:
-      - criteria:
-          - "<=+50%"
-          - "<=500000"
+#  - sli: "rt_addToCart" # looking at a particular transaction
+#    weight: 3           # business critical transaction
+#    pass:
+#      - criteria:
+#          - "<=+10%"    # Degradation-driven
+#          - "<300000"   # NFR-driven
+#    warning:
+#      - criteria:
+#          - "<=+50%"
+#          - "<=500000"
   - sli: "error_rate"
     pass:
       - criteria:

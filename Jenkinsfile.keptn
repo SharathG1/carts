@@ -37,8 +37,8 @@ pipeline {
       	checkout scm
 	sh "ls -la"
         script {
-          keptn.keptnAddResources('keptn/carts-sli.yaml','dynatrace/sli.yaml')
-	  keptn.keptnAddResources('keptn/carts-slo.yaml','slo.yaml')
+          keptn.keptnAddResources('keptn/carts-sli.yml','dynatrace/sli.yaml')
+	  keptn.keptnAddResources('keptn/carts-slo.yml','slo.yaml')
 	  keptn.keptnAddResources('jmeter/${env.APP_NAME}_load.jmx','jmeter/load.jmx')
 		  
         }

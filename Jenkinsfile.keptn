@@ -1,5 +1,5 @@
 @Library('dynatrace@master') _
-@Library('keptn-library@6.0.0')
+@Library('keptn-library@5.1')
 import sh.keptn.Keptn
 def keptn = new sh.keptn.Keptn()
 
@@ -34,12 +34,10 @@ pipeline {
     
 	stage('Update SLI/SLO') {
       steps{
-        checkout scm
-
         script {
           keptn.keptnAddResources('keptn/carts-sli.yaml')
-		  keptn.keptnAddResources('keptn/carts-slo.yaml')
-		  keptn.keptnAddResources('jmeter/${env.APP_NAME}_perfcheck.jmx','jmeter/${env.APP_NAME}_load.jmx')
+	  keptn.keptnAddResources('keptn/carts-slo.yaml')
+	//  keptn.keptnAddResources('jmeter/${env.APP_NAME}_perfcheck.jmx','jmeter/${env.APP_NAME}_load.jmx')
 		  
         }
       }

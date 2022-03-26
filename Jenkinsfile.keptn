@@ -35,6 +35,7 @@ pipeline {
 	stage('Update SLI/SLO') {
       steps{
       	checkout scm
+	sh "ls -la"
         script {
           keptn.keptnAddResources('keptn/carts-sli.yaml','dynatrace/sli.yaml')
 	  keptn.keptnAddResources('keptn/carts-slo.yaml','slo.yaml')
@@ -50,6 +51,7 @@ pipeline {
         //checkout scm
         echo "Waiting for the service to start..."
         container('kubectl') {
+	 
           script {
             def status = waitForDeployment (
               deploymentName: "${env.APP_NAME}",

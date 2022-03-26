@@ -27,7 +27,7 @@ pipeline {
 	stage('Initialize Keptn') {
 		  steps{
 			  script{
-        		keptn.keptnInit project:"${env.KEPTN_PROJECT", service:"${env.KEPTN_SERVICE", stage:"${params.stage}"
+        		keptn.keptnInit project:"${env.KEPTN_PROJECT}", service:"${env.KEPTN_SERVICE}", stage:"${params.stage}"
 			  }
 		       }
     }

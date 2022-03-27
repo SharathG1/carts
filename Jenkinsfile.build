@@ -68,6 +68,20 @@ pipeline {
       }
     }
     
+    stage('Mark artifact for staging namespace') {
+      when {
+        expression {
+          return env.BRANCH_NAME ==~ 'release/.*'
+        }
+      }
+      steps {
+        container('docker'){
+          sh "docker tag ${env.TAG_DEV} ${env.TAG_STAGING}"
+          sh "docker push ${env.TAG_STAGING}"
+        }
+      }
+    }
+    
     
 	  
    stage('Send Finished Event Back to Keptn') {

@@ -1,6 +1,7 @@
 @Library('dynatrace@master') _
 @Library('keptn-library@master')
 import sh.keptn.Keptn
+import java.time.temporal.ChronoUnit
 
 
 def keptn = new sh.keptn.Keptn()
@@ -94,7 +95,7 @@ pipeline {
 	stage('Mark Test Start Time') {
         steps {
             script {
-			env.StartTime = java.time.LocalDateTime.now()
+			env.StartTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 			}
 		}
 	}
@@ -134,7 +135,7 @@ pipeline {
     stage('Evaluate Build with Keptn') {
       steps {
         script {
-	  env.EndTime = java.time.LocalDateTime.now()
+	  env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 	  
 	  //def eventPayload=[:]
 	  //eventPayload.put(start, "${env.StartTime}")

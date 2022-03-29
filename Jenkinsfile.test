@@ -95,7 +95,9 @@ pipeline {
 	stage('Mark Test Start Time') {
         steps {
             script {
-			env.StartTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
+			def now = java.time.LocalDateTime.now()
+        		env.StartTime = now.format("yyyy-MM-ddTHH:mm:ss", TimeZone.getTimeZone('UTC'))
+			//env.StartTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 			}
 		}
 	}
@@ -135,8 +137,9 @@ pipeline {
     stage('Evaluate Build with Keptn') {
       steps {
         script {
-	  env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
-	  
+	  //env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
+	  def now = java.time.LocalDateTime.now()
+          env.EndTime = now.format("yyyy-MM-ddTHH:mm:ss", TimeZone.getTimeZone('UTC'))
 	  //def eventPayload=[:]
 	  //eventPayload.put(start, "${env.StartTime}")
 	  //eventPayload.put(end, "${env.EndTime}")

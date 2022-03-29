@@ -96,8 +96,11 @@ pipeline {
         steps {
             script {
 	    
+			
+			def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss")
 			def now = java.time.LocalDateTime.now()
-        		env.StartTime = now.format.DateTimeFormatter("yyyy-MM-ddTHH:mm:ss")
+			env.StartTime = now.format(dateFormat)
+        		//env.StartTime = now.format.DateTimeFormatter("yyyy-MM-ddTHH:mm:ss")
 			//env.StartTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 			}
 		}
@@ -139,8 +142,11 @@ pipeline {
       steps {
         script {
 	  //env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
+	  
+	  def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss")
 	  def now = java.time.LocalDateTime.now()
-          env.EndTime = now.format.DateTimeFormatter("yyyy-MM-ddTHH:mm:ss")
+	  env.EndTime = now.format(dateFormat)
+          
 	  //def eventPayload=[:]
 	  //eventPayload.put(start, "${env.StartTime}")
 	  //eventPayload.put(end, "${env.EndTime}")

@@ -1,5 +1,5 @@
 @Library('dynatrace@master') _
-@Library('keptn-library@6.0.0')
+@Library('keptn-library@master')
 def keptn = new sh.keptn.Keptn()
 
 pipeline {
@@ -101,7 +101,7 @@ pipeline {
 	   steps{
 		script{
 		
-        		  def eventPayload = [deploymentstrategy: "direct", deploymentURIsLocal: ["http://carts.sockshop-staging.svc.cluster.local"], deploymentURIsPublic: ["test"]]
+        		  def eventPayload = [deploymentstrategy: "direct", deploymentURIsLocal: ["test","http://carts.sockshop-staging.svc.cluster.local"], deploymentURIsPublic: ["test"]]
 	  		  echo "${eventPayload}"
 			  
 			def keptnContext = keptn.sendFinishedEvent eventType: "deployment", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:eventPayload

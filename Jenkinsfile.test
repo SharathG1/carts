@@ -95,13 +95,8 @@ pipeline {
 	stage('Mark Test Start Time') {
         steps {
             script {
-	    
-	
-			def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-			def now = java.time.LocalDateTime.now()
-			env.StartTime = now.toString(dateFormat)
-        		//env.StartTime = now.format.DateTimeFormatter("yyyy-MM-ddTHH:mm:ss")
-			//env.StartTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
+	    		env.StartTime = getTimestamp()
+        	
 			}
 		}
 	}
@@ -141,11 +136,7 @@ pipeline {
     stage('Evaluate Build with Keptn') {
       steps {
         script {
-	  //env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
-	  
-	  def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-	  def now = java.time.LocalDateTime.now()
-	  env.EndTime = now.toString(dateFormat)
+	  env.EndTime = getTimestamp()
           
 	  //def eventPayload=[:]
 	  //eventPayload.put(start, "${env.StartTime}")
@@ -167,3 +158,11 @@ pipeline {
 		
     }// end stages
 } // end pipeline
+@NonCPS
+def getTimestamp(){
+  def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+  def now = java.time.LocalDateTime.now()
+  def currentDateTime = now.format(dateFormat)
+  
+  return currentDateTime.toString()
+}

@@ -1,6 +1,8 @@
 @Library('dynatrace@master') _
 @Library('keptn-library@5.1')
 import sh.keptn.Keptn
+
+
 def keptn = new sh.keptn.Keptn()
 
 pipeline {
@@ -92,7 +94,7 @@ pipeline {
 	stage('Mark Test Start Time') {
         steps {
             script {
-				keptn.markEvaluationStartTime()
+			env.StartTime = keptn.getNow
 			}
 		}
 	}
@@ -132,7 +134,12 @@ pipeline {
     stage('Evaluate Build with Keptn') {
       steps {
         script {
-          def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded"
+	  env.EndTime = keptn.getNow
+	  def eventPayload=[:]
+	  eventPayload.put('start', env.StartTime)
+	  eventPayload.put('end', env.EndTime)
+
+          def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:"${eventPayload}"
 		  echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
         }

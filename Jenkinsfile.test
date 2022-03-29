@@ -136,8 +136,8 @@ pipeline {
         script {
 	  env.EndTime = java.time.LocalDateTime.now()
 	  def eventPayload=[:]
-	  eventPayload.put("start", "${env.StartTime}")
-	  eventPayload.put("end", "${env.EndTime}")
+	  eventPayload.put(start, "${env.StartTime}")
+	  eventPayload.put(end, "${env.EndTime}")
 	  echo "${eventPayload}"
           def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:"${eventPayload}"
 		  echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"

@@ -97,7 +97,7 @@ pipeline {
             script {
 	    
 			
-			def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss")
+			def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 			def now = java.time.LocalDateTime.now()
 			env.StartTime = now.format(dateFormat)
         		//env.StartTime = now.format.DateTimeFormatter("yyyy-MM-ddTHH:mm:ss")
@@ -143,7 +143,7 @@ pipeline {
         script {
 	  //env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 	  
-	  def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-ddTHH:mm:ss")
+	  def dateFormat = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 	  def now = java.time.LocalDateTime.now()
 	  env.EndTime = now.format(dateFormat)
           

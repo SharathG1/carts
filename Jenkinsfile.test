@@ -151,7 +151,7 @@ pipeline {
 	  //eventPayload.put(start, "${env.StartTime}")
 	  //eventPayload.put(end, "${env.EndTime}")
 	  
-	  def eventPayload = [start: "${env.StartTime}", end: "${env.EndTime}"]
+	  def eventPayload = [start: "${env.StartTime.toString()}", end: "${env.EndTime.toString()}"]
 	  for (kvp in eventPayload) {
           echo "${kvp.key}"
           

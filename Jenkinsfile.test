@@ -1,5 +1,5 @@
 @Library('dynatrace@master') _
-@Library('keptn-library@6.0.0-rf.001')
+@Library('keptn-library@6.0.0-rf.002')
 import sh.keptn.Keptn
 
 

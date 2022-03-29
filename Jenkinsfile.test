@@ -94,7 +94,7 @@ pipeline {
 	stage('Mark Test Start Time') {
         steps {
             script {
-			env.StartTime = keptn.getNow
+			env.StartTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 			}
 		}
 	}
@@ -134,7 +134,7 @@ pipeline {
     stage('Evaluate Build with Keptn') {
       steps {
         script {
-	  env.EndTime = keptn.getNow
+	  env.EndTime = java.time.Instant.now().truncatedTo( ChronoUnit.MILLIS )
 	  def eventPayload=[:]
 	  eventPayload.put('start', env.StartTime)
 	  eventPayload.put('end', env.EndTime)

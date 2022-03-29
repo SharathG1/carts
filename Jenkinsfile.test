@@ -146,7 +146,7 @@ pipeline {
           
       }
 	  echo "${eventPayload}"
-          def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:${eventPayload}
+          def keptnContext = keptn.sendFinishedEvent eventType: "test", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:eventPayload
 		  echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
         }

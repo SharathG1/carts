@@ -11,7 +11,8 @@ pipeline {
 	parameters{
          string(defaultValue: 'stage', description: 'Stage of your Keptn project where tests are triggered in', name: 'stage', trim: false) 
          string(defaultValue: '', description: 'Keptn Context ID', name: 'shkeptncontext', trim: false) 
-         string(defaultValue: '', description: 'Triggered ID', name: 'triggeredid', trim: false) 
+         string(defaultValue: '', description: 'Triggered ID', name: 'triggeredid', trim: false)
+	 string(defaultValue: '', description: 'Version', name: 'version', trim: false)
 	}
     
   environment {
@@ -36,11 +37,7 @@ pipeline {
     }
     
     stage('Deploy to dev namespace') {
-      when {
-        expression {
-          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
-        }
-      }
+
       steps {
         container('kubectl') {
           sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/carts.yml"
@@ -51,11 +48,7 @@ pipeline {
     }
     
     stage('Run health check in dev') {
-      when {
-        expression {
-          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
-        }
-      }
+      
       steps {
         echo "Waiting for the service to start..."
         container('kubectl') {
@@ -94,7 +87,7 @@ pipeline {
       }
     }
     
-    
+
 	  
    stage('Send Finished Event Back to Keptn') {
         // Send test.finished Event back

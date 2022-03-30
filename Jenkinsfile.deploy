@@ -42,7 +42,7 @@ pipeline {
         container('kubectl') {
           sh "sed -i 's#image: .*#image: ${env.imageid}#' manifest/carts_${env.stage}.yml"
           sh "sed -i 's#value: \"DT_CUSTOM_PROP_PLACEHOLDER\".*#value: \"${env.DT_META}\"#' manifest/carts_${env.stage}.yml"
-          sh "kubectl -n dev apply -f manifest/carts_${env.stage}.yml"
+          sh "kubectl -n ${env.stage} apply -f manifest/carts_${env.stage}.yml"
         }
       }
     }

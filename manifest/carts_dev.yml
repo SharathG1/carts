@@ -17,7 +17,7 @@ spec:
         app: carts
         version: v1
         app.kubernetes.io/name: carts
-        app.kubernetes.io/version: carts
+        app.kubernetes.io/version: 0.28.0
         app.kubernetes.io/component: application
         app.kubernetes.io/part-of: sockshop
         app.kubernetes.io/managed-by: keptn

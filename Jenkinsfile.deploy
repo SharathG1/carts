@@ -12,16 +12,16 @@ pipeline {
          string(defaultValue: 'stage', description: 'Stage of your Keptn project where tests are triggered in', name: 'stage', trim: false) 
          string(defaultValue: '', description: 'Keptn Context ID', name: 'shkeptncontext', trim: false) 
          string(defaultValue: '', description: 'Triggered ID', name: 'triggeredid', trim: false)
-	 string(defaultValue: '', description: 'Version', name: 'version', trim: false)
+	 string(defaultValue: '', description: 'Image ID', name: 'imageid', trim: false)
 	}
     
   environment {
     APP_NAME = "carts"
     VERSION = readFile('version').trim()
     ARTEFACT_ID = "sockshop/" + "${env.APP_NAME}"
-    TAG = "${env.DOCKER_REGISTRY_URL}:5000/library/${env.ARTEFACT_ID}"
-    TAG_DEV = "${env.TAG}-${env.VERSION}-${env.BUILD_NUMBER}"
-    TAG_STAGING = "${env.TAG}-${env.VERSION}"
+    //TAG = "${env.DOCKER_REGISTRY_URL}:5000/library/${env.ARTEFACT_ID}"
+    //TAG_DEV = "${env.TAG}-${env.VERSION}-${env.BUILD_NUMBER}"
+    //TAG_STAGING = "${env.TAG}-${env.VERSION}"
     CLASS = "GOLD"
     REMEDIATION = "Ansible"
 	  DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=${env.stage} SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
@@ -36,18 +36,18 @@ pipeline {
 		       }
     }
     
-    stage('Deploy to dev namespace') {
-
+    stage('Deploy to namespace') {
+       
       steps {
         container('kubectl') {
-          sh "sed -i 's#image: .*#image: ${env.TAG_DEV}#' manifest/carts.yml"
-          sh "sed -i 's#value: \"DT_CUSTOM_PROP_PLACEHOLDER\".*#value: \"${env.DT_META}\"#' manifest/carts.yml"
-          sh "kubectl -n dev apply -f manifest/carts.yml"
+          sh "sed -i 's#image: .*#image: ${env.imageid}#' manifest/carts_${env.stage}.yml"
+          sh "sed -i 's#value: \"DT_CUSTOM_PROP_PLACEHOLDER\".*#value: \"${env.DT_META}\"#' manifest/carts_${env.stage}.yml"
+          sh "kubectl -n dev apply -f manifest/carts_${env.stage}.yml"
         }
       }
     }
-    
-    stage('Run health check in dev') {
+        
+    stage('Run health check') {
       
       steps {
         echo "Waiting for the service to start..."
@@ -55,7 +55,7 @@ pipeline {
           script {
             def status = waitForDeployment (
               deploymentName: "${env.APP_NAME}",
-              environment: 'dev'
+              environment: "${env.stage}"
             )
             if(status !=0 ){
               currentBuild.result = 'FAILED'
@@ -69,7 +69,7 @@ pipeline {
             def status = executeJMeter ( 
               scriptName: 'jmeter/basiccheck.jmx', 
               resultsDir: "HealthCheck_${env.APP_NAME}_dev_${env.VERSION}_${BUILD_NUMBER}",
-              serverUrl: "${env.APP_NAME}.dev", 
+              serverUrl: "${env.APP_NAME}.${env.stage}", 
               serverPort: 80,
               checkPath: '/health',
               vuCount: 1,
@@ -94,11 +94,9 @@ pipeline {
 	   steps{
 		script{
 		
-        		  def eventPayload = [deploymentstrategy: "direct", deploymentURIsLocal: ["test","http://carts.sockshop-staging.svc.cluster.local"], deploymentURIsPublic: ["test"]]
-	  		  echo "${eventPayload}"
-			  
-			def keptnContext = keptn.sendFinishedEvent eventType: "deployment", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:eventPayload
-        		//def keptnContext = keptn.sendDeliveryTriggeredEvent image:"${env.TAG_DEV}"
+        		def eventPayload = [deploymentstrategy: "direct", deploymentURIsLocal: ["test","http://carts.sockshop-staging.svc.cluster.local"], deploymentURIsPublic: ["test"]]
+	  		def keptnContext = keptn.sendFinishedEvent eventType: "deployment", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", eventPayload:eventPayload
+        		
 			String keptn_bridge = env.KEPTN_BRIDGE
         		echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 		   }}

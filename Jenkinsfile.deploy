@@ -35,6 +35,19 @@ pipeline {
 			  }
 		       }
     }
+    stage('Update SLI/SLO') {
+      steps{
+      	checkout scm
+	sh "ls -la"
+        script {
+          keptn.keptnAddResources('keptn/carts-sli.yml','dynatrace/sli.yaml')
+	  keptn.keptnAddResources('keptn/carts-slo.yml','slo.yaml')
+	  keptn.keptnAddResources("jmeter/${env.APP_NAME}_load.jmx",'jmeter/load.jmx')
+		  
+        }
+      }
+      
+    }
     
     stage('Deploy to namespace') {
        

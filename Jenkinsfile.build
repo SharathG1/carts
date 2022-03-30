@@ -20,7 +20,7 @@ pipeline {
     VERSION = readFile('version').trim()
     ARTEFACT_ID = "sockshop/" + "${env.APP_NAME}"
     TAG = "${env.DOCKER_REGISTRY_URL}:5000/library/${env.ARTEFACT_ID}"
-    TAG_DEV = "${env.TAG}-${env.VERSION}-${env.BUILD_NUMBER}"
+    TAG_DEV = "${env.TAG}-${env.VERSION}
     TAG_STAGING = "${env.TAG}-${env.VERSION}"
     CLASS = "GOLD"
     REMEDIATION = "Ansible"
@@ -44,11 +44,6 @@ pipeline {
       }
     }
     stage('Docker build') {
-      when {
-        expression {
-          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
-        }
-      }
       steps {
         container('docker') {
           sh "docker build -t ${env.TAG_DEV} ."
@@ -56,11 +51,6 @@ pipeline {
       }
     }
     stage('Docker push to registry'){
-      when {
-        expression {
-          return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~'master'
-        }
-      }
       steps {
         container('docker') {
           sh "docker push ${env.TAG_DEV}"
@@ -68,28 +58,13 @@ pipeline {
       }
     }
     
-    stage('Mark artifact for staging namespace') {
-      when {
-        expression {
-          return env.BRANCH_NAME ==~ 'release/.*'
-        }
-      }
-      steps {
-        container('docker'){
-          sh "docker tag ${env.TAG_DEV} ${env.TAG_STAGING}"
-          sh "docker push ${env.TAG_STAGING}"
-        }
-      }
-    }
-    
-    
-	  
-   stage('Send Finished Event Back to Keptn') {
+   	  
+   stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back
 	   steps{
 		   script{
-        def keptnContext = keptn.sendFinishedEvent eventType: "deployment", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", message:"jenkins tests succeeded"
-        //def keptnContext = keptn.sendDeliveryTriggeredEvent image:"${env.TAG_DEV}"
+        //def keptnContext = keptn.sendFinishedEvent eventType: "deployment", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", message:"jenkins tests succeeded"
+        def keptnContext = keptn.sendDeliveryTriggeredEvent project: "sockshop", service: "carts", image:"${env.TAG_DEV}"
 	      String keptn_bridge = env.KEPTN_BRIDGE
         echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 		   }

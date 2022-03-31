@@ -21,7 +21,7 @@ objectives:
 #    weight: 3           # business critical transaction
 #    pass:
 #      - criteria:
-#          - "<=+10%"    # Degradation-driven
+#          - "<=+20%"    # Degradation-driven
 #          - "<300000"   # NFR-driven
 #    warning:
 #      - criteria:
@@ -34,7 +34,7 @@ objectives:
           - "<2"
     warning:
       - criteria:
-          - "<5"
+          - "<10"
   - sli: "pg_heap_suspension"
   - sli: "pg_cpu_usage"
 total_score:

@@ -11,7 +11,7 @@ objectives:
     key_sli: false
     pass:             # pass if (relative change <= 10% AND absolute value is < 600ms)
       - criteria:
-          - "<=+10%"  # relative values require a prefixed sign (plus or minus)
+          - "<=+25%"  # relative values require a prefixed sign (plus or minus)
           - "<600"    # absolute values only require a logical operator
     warning:          # if the response time is below 800ms, the result should be a warning
       - criteria:
@@ -30,7 +30,7 @@ objectives:
   - sli: "error_rate"
     pass:
       - criteria:
-          - "<=+5%"
+          - "<=+15%"
           - "<2"
     warning:
       - criteria:
@@ -39,4 +39,4 @@ objectives:
   - sli: "pg_cpu_usage"
 total_score:
   pass: "90%"
-  warning: "75%"
+  warning: "70%"

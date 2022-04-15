@@ -188,7 +188,7 @@ pipeline {
     }
     
 	  
-   stage('Send Finished Event Back to Keptn') {
+   /*stage('Send Finished Event Back to Keptn') {
         // Send test.finished Event back
 	   steps{
 		   script{
@@ -198,7 +198,7 @@ pipeline {
         echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 		   }}
     }
-	
+	*/
     stage('Mark artifact for staging namespace') {
       when {
         expression {

@@ -117,7 +117,7 @@ pipeline {
 	}
 post { 
         always { 
-            steps{
+            
 		script{
 		
         		def eventPayload = [deploymentstrategy: "direct", deploymentURIsLocal: ["test","http://carts.sockshop-staging.svc.cluster.local"], deploymentURIsPublic: ["test"]]
@@ -125,7 +125,7 @@ post {
         		
 			String keptn_bridge = env.KEPTN_BRIDGE
         		echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
-		   }}
+		}
         }
     }
 }

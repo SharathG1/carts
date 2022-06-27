@@ -5,7 +5,7 @@ def keptn = new sh.keptn.Keptn()
 
 pipeline {
   agent {
-    label 'maven'
+    label 'master'
   }
   
   
@@ -35,10 +35,10 @@ pipeline {
 			  }
 		       }
     }
-    stage('Maven build') {
+    stage('master build') {
       steps {
         checkout scm
-        container('maven') {
+        container('master') {
           sh 'mvn -B clean package'
         }
       }

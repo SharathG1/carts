@@ -19,12 +19,7 @@ pipeline {
     APP_NAME = "carts"
     VERSION = readFile('version').trim()
     ARTEFACT_ID = "sockshop/" + "${env.APP_NAME}"
-    TAG = "${env.DOCKER_REGISTRY_URL}:5000/library/${env.ARTEFACT_ID}"
-    TAG_DEV = "${env.TAG}-${env.VERSION}"
-    TAG_STAGING = "${env.TAG}-${env.VERSION}"
     CLASS = "GOLD"
-    REMEDIATION = "Ansible"
-	  DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=${env.stage} SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
   }
   stages {
 	  
@@ -34,31 +29,7 @@ pipeline {
         		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
 			  }
 		       }
-    }
-    stage('master build') {
-      steps {
-        checkout scm
-        container('master') {
-          sh 'mvn -B clean package'
-        }
-      }
-    }
-    stage('Docker build') {
-      steps {
-        container('docker') {
-          sh "docker build -t ${env.TAG_DEV} ."
-        }
-      }
-    }
-    stage('Docker push to registry'){
-      steps {
-        container('docker') {
-          sh "docker push ${env.TAG_DEV}"
-        }
-      }
-    }
-    
-   	  
+    }	  
    stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back
 	   steps{

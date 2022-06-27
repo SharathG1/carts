@@ -21,19 +21,20 @@ pipeline {
     ARTEFACT_ID = "sockshop/" + "${env.APP_NAME}"
     CLASS = "GOLD"
   }
-  stages {
-	  
-	  stage('Initialize Keptn') {
+  stage('Initialize Keptn') {
 	      keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/shipyard.yml", 'keptn/shipyard.yaml')
               //keptn.downloadFile("https://github.com/SharathG1/podtato-head1/blob/main/delivery/keptn/prometheus/sli.yaml", 'keptn/dynatrace/dynatrace.conf.yaml')
               keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/sli.yml", 'keptn/sli.yaml')
-              keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/slo.yml", 'keptn/slo.yaml')
+              keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/slo.yml')
               archiveArtifacts artifacts:'keptn/**/*.*'
-		  steps{
-			  script{
-        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
-			  }
-		       }
+                      // Initialize the Keptn Project - ensures the Keptn Project is created with the passed shipyard
+	      keptn.keptnInit project:"${params.Project}", service:"${params.Service}", stage:"${params.Stage}", shipyard:'keptn/shipyard.yaml'
+	      keptn.keptnConfigureMonitoring monitoring:"prometheus"
+		 // Upload all the files
+		//keptn.keptnAddResources('keptn/dynatrace/dynatrace.conf.yaml',)
+	      keptn.keptnAddResources('keptn/sli.yaml','sli.yaml')
+	      keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
+	    }
     }	  
    stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back

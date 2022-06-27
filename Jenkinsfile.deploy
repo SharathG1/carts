@@ -4,7 +4,7 @@ def keptn = new sh.keptn.Keptn()
 
 pipeline {
   agent {
-    label 'maven'
+    label 'master'
   }
   
   

@@ -35,7 +35,7 @@ pipeline {
 	      keptn.keptnAddResources('keptn/sli.yaml','sli.yaml')
 	      keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
 	    }
-    }	  
+   
    stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back
 	   steps{
@@ -48,4 +48,3 @@ pipeline {
      }
    }
  }
-}

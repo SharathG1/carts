@@ -25,7 +25,7 @@ pipeline {
 	      keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/shipyard.yml", 'keptn/shipyard.yaml')
               //keptn.downloadFile("https://github.com/SharathG1/podtato-head1/blob/main/delivery/keptn/prometheus/sli.yaml", 'keptn/dynatrace/dynatrace.conf.yaml')
               keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/sli.yml", 'keptn/sli.yaml')
-              keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/slo.yml')
+              keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/slo.yml", 'keptn/slo.yaml')
               archiveArtifacts artifacts:'keptn/**/*.*'
                       // Initialize the Keptn Project - ensures the Keptn Project is created with the passed shipyard
 	      keptn.keptnInit project:"${params.Project}", service:"${params.Service}", stage:"${params.Stage}", shipyard:'keptn/shipyard.yaml'

@@ -32,7 +32,12 @@ pipeline {
 	  stage('Initialize Keptn') {
 		  steps{
 			  script{
-        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}", image:"${params.Image}"
+			 keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/shipyard.yml", 'keptn/shipyard.yaml')
+                        //keptn.downloadFile("https://github.com/SharathG1/podtato-head1/blob/main/delivery/keptn/prometheus/sli.yaml", 'keptn/dynatrace/dynatrace.conf.yaml')
+                         keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/podtato-head1/main/delivery/keptn/prometheus/sli.yaml", 'keptn/sli.yaml')
+                         keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/podtato-head1/main/delivery/keptn/slo.yaml", 'keptn/slo.yaml')
+                         archiveArtifacts artifacts:'keptn/**/*.*'  
+        		 keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}", image:"${params.Image}", shipyard:'keptn/shipyard.yaml'
 			  }
 		       }
     }

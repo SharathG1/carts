@@ -5,7 +5,7 @@ def keptn = new sh.keptn.Keptn()
 
 pipeline {
   agent {
-    label 'master'
+    label 'maven'
   }
   
   
@@ -19,23 +19,46 @@ pipeline {
     APP_NAME = "carts"
     VERSION = readFile('version').trim()
     ARTEFACT_ID = "sockshop/" + "${env.APP_NAME}"
+    TAG = "${env.DOCKER_REGISTRY_URL}:5000/library/${env.ARTEFACT_ID}"
+    TAG_DEV = "${env.TAG}-${env.VERSION}"
+    TAG_STAGING = "${env.TAG}-${env.VERSION}"
     CLASS = "GOLD"
+    REMEDIATION = "Ansible"
+	  DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=${env.stage} SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
   }
-  stage('Initialize Keptn') {
-	      keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/shipyard.yml", 'keptn/shipyard.yaml')
-              //keptn.downloadFile("https://github.com/SharathG1/podtato-head1/blob/main/delivery/keptn/prometheus/sli.yaml", 'keptn/dynatrace/dynatrace.conf.yaml')
-              keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/sli.yml", 'keptn/sli.yaml')
-              keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/slo.yml", 'keptn/slo.yaml')
-              archiveArtifacts artifacts:'keptn/**/*.*'
-                      // Initialize the Keptn Project - ensures the Keptn Project is created with the passed shipyard
-	      keptn.keptnInit project:"${params.Project}", service:"${params.Service}", stage:"${params.Stage}", shipyard:'keptn/shipyard.yaml'
-	      keptn.keptnConfigureMonitoring monitoring:"prometheus"
-		 // Upload all the files
-		//keptn.keptnAddResources('keptn/dynatrace/dynatrace.conf.yaml',)
-	      keptn.keptnAddResources('keptn/sli.yaml','sli.yaml')
-	      keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
-	    }
-   
+  stages {
+	  
+	  stage('Initialize Keptn') {
+		  steps{
+			  script{
+        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
+			  }
+		       }
+    }
+    stage('Maven build') {
+      steps {
+        checkout scm
+        container('maven') {
+          sh 'mvn -B clean package'
+        }
+      }
+    }
+    stage('Docker build') {
+      steps {
+        container('docker') {
+          sh "docker build -t ${env.TAG_DEV} ."
+        }
+      }
+    }
+    stage('Docker push to registry'){
+      steps {
+        container('docker') {
+          sh "docker push ${env.TAG_DEV}"
+        }
+      }
+    }
+    
+   	  
    stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back
 	   steps{
@@ -48,3 +71,4 @@ pipeline {
      }
    }
  }
+}

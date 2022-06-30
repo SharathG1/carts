@@ -27,6 +27,31 @@ pipeline {
     REMEDIATION = "Ansible"
 	  DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=${env.stage} SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
   }
+  
+     stage('Maven build') {
+      steps {
+        checkout scm
+        container('maven') {
+          sh 'mvn -B clean package'
+        }
+      }
+    }
+    stage('Docker build') {
+      steps {
+        container('docker') {
+          sh "docker build -t ${env.TAG_DEV} ."
+        }
+      }
+    }
+    stage('Docker push to registry'){
+      steps {
+        container('docker') {
+          sh "docker push ${env.TAG_DEV}"
+        }
+      }
+    }
+    
+    
   stages {
 	  
 	  stage('Initialize Keptn') {

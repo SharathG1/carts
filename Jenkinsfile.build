@@ -26,9 +26,22 @@ pipeline {
     CLASS = "GOLD"
     REMEDIATION = "Ansible"
 	  DT_META = "keptn_project=sockshop keptn_service=${env.APP_NAME} keptn_stage=${env.stage} SCM=${env.GIT_URL} Branch=${env.GIT_BRANCH} Version=${env.VERSION} Owner=ace@dynatrace.com FriendlyName=sockshop.carts SERVICE_TYPE=BACKEND Project=sockshop DesignDocument=https://sock-corp.com/stories/${env.APP_NAME} Class=${env.CLASS} Remediation=${env.REMEDIATION}"
-  }
-  
-     stage('Maven build') {
+  }    
+  stages {
+	  
+	  stage('Initialize Keptn') {
+		  steps{
+			  script{
+			 keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/shipyard.yml", 'keptn/shipyard.yaml')
+                        //keptn.downloadFile("https://github.com/SharathG1/podtato-head1/blob/main/delivery/keptn/prometheus/sli.yaml", 'keptn/dynatrace/dynatrace.conf.yaml')
+                         keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/podtato-head1/main/delivery/keptn/prometheus/sli.yaml", 'keptn/sli.yaml')
+                         keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/podtato-head1/main/delivery/keptn/slo.yaml", 'keptn/slo.yaml')
+                         archiveArtifacts artifacts:'keptn/**/*.*'  
+        		 keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}", image:"${params.Image}", shipyard:'keptn/shipyard.yaml'
+			  }
+		       }
+    }
+    stage('Maven build') {
       steps {
         checkout scm
         container('maven') {
@@ -51,22 +64,6 @@ pipeline {
       }
     }
     
-    
-  stages {
-	  
-	  stage('Initialize Keptn') {
-		  steps{
-			  script{
-			 keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/carts/master/keptn/shipyard.yml", 'keptn/shipyard.yaml')
-                        //keptn.downloadFile("https://github.com/SharathG1/podtato-head1/blob/main/delivery/keptn/prometheus/sli.yaml", 'keptn/dynatrace/dynatrace.conf.yaml')
-                         keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/podtato-head1/main/delivery/keptn/prometheus/sli.yaml", 'keptn/sli.yaml')
-                         keptn.downloadFile("https://raw.githubusercontent.com/SharathG1/podtato-head1/main/delivery/keptn/slo.yaml", 'keptn/slo.yaml')
-                         archiveArtifacts artifacts:'keptn/**/*.*'  
-        		 keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}", image:"${params.Image}", shipyard:'keptn/shipyard.yaml'
-			  }
-		       }
-    }
-   
    	  
    stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back

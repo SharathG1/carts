@@ -32,7 +32,7 @@ pipeline {
 	  stage('Initialize Keptn') {
 		  steps{
 			  script{
-        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}, image:"${params.Image}"
+        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}", image:"${params.Image}"
 			  }
 		       }
     }

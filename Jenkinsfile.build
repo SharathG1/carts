@@ -11,6 +11,7 @@ pipeline {
   
 	parameters{
          string(defaultValue: 'dev', description: 'Stage of your Keptn project where tests are triggered in', name: 'stage', trim: false) 
+	 string(defaultValue: 'docker.io/grabnerandi/simplenodeservice:2.0.0', description: 'Name of the service you provide a configuration change for', name: 'Image', trim: false)
          //string(defaultValue: '', description: 'Keptn Context ID', name: 'shkeptncontext', trim: false) 
          //string(defaultValue: '', description: 'Triggered ID', name: 'triggeredid', trim: false) 
 	}
@@ -31,33 +32,18 @@ pipeline {
 	  stage('Initialize Keptn') {
 		  steps{
 			  script{
-        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}"
+        		keptn.keptnInit project:"sockshop", service:"carts", stage:"${params.stage}, image:"${params.Image}"
 			  }
 		       }
     }
-    stage('Maven build') {
-      steps {
-        checkout scm
-        container('maven') {
-          sh 'mvn -B clean package'
-        }
-      }
-    }
-    stage('Docker build') {
-      steps {
-        container('docker') {
-          sh "docker build -t ${env.TAG_DEV} ."
-        }
-      }
-    }
-    
+   
    	  
    stage('Trigger keptn Delivery Sequence') {
         // Send test.finished Event back
 	   steps{
 		   script{
         //def keptnContext = keptn.sendFinishedEvent eventType: "deployment", keptnContext: "${params.shkeptncontext}", triggeredId: "${params.triggeredid}", result:"pass", status:"succeeded", message:"jenkins tests succeeded"
-        def keptnContext = keptn.sendDeliveryTriggeredEvent project: "sockshop", service: "carts", image:"${env.TAG_DEV}"
+        def keptnContext = keptn.sendDeliveryTriggeredEvent project: "sockshop", service: "carts", image:"${params.Image}"
 	      String keptn_bridge = env.KEPTN_BRIDGE
         echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 		   }
